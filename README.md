@@ -25,6 +25,9 @@ Statische Übungsseite für den **Test für Medizinische Studiengänge (TMS)** �
 - **Auswertung** mit Umrechnung auf TMS-Punkte (20 je Untertest, 18 im TV, 158 gesamt), Testwert (100 ± 10) und Prozentrang, orientiert an veröffentlichten Durchschnittswerten früherer TMS-Termine (siehe `js/core/norms.js`)
 - Aufgabenbesprechung mit Lösungsweg, Übungsmodus, Antwortbogen, Markieren, Tastatursteuerung (A–E, 1–5, ←/→, M)
 - Laufende Simulationen werden gespeichert und können nach dem Neuladen fortgesetzt werden
+- **Für Handy und iPad optimiert:** einzeiliger Testkopf, Antwortbogen als ausklappbares Feld, Reiter „Text / Frage“ im Textverständnis, Schlauchfiguren nebeneinander, lesbare Diagramme, Touch-Bedienung und Unterstützung für Notch/Home-Indikator
+- **Hell- und Dunkelmodus:** Umschalter oben rechts (System → Hell → Dunkel); Testmaterial bleibt wie im Testheft auf hellem „Papier“, im Dunkelmodus leicht abgedunkelt
+- Lässt sich auf iPhone/iPad über „Teilen → Zum Home-Bildschirm“ wie eine App ablegen
 - Verlauf mit Entwicklung je Untertest, Export/Import als JSON
 
 ## Daten

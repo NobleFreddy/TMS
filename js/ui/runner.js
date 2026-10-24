@@ -12,6 +12,7 @@
 
   const QUICK = ['mz', 'sf', 'fig'];
   let run = null, root = null, tickHandle = null, warned = false, finishing = false;
+  let tvView = 'text', tvPassage = -1;
 
   // ---------- Aufbau eines Durchlaufs ----------
   function phasesSingle(sub, seed) {
@@ -86,6 +87,7 @@
     run.elapsedBefore = 0;
     run.paused = false;
     warned = false;
+    tvPassage = -1;
   }
   function elapsed() {
     if (!run || run.phaseStart === null) return 0;
@@ -176,7 +178,8 @@
       ${p.type !== 'intro' ? `<div class="timer" data-timer aria-live="off">${p.dur ? U.fmtTime(remaining()) : U.fmtTime(elapsed())}</div>` : ''}
       <div class="rh-actions">${extra || ''}
         ${set.allowPause && p.dur && p.type !== 'intro' ? `<button class="btn small" data-act="pause">${run.paused ? 'Fortsetzen' : 'Pause'}</button>` : ''}
-        <button class="btn small ghost" data-act="abort">Abbrechen</button>
+        <span class="rh-theme">${V.themeButton()}</span>
+        <button class="icon-btn" data-act="abort" title="Simulation abbrechen" aria-label="Simulation abbrechen">${V.icon('close')}</button>
       </div></div><div class="run-progress"><i style="width:${(run.idx / run.phases.length * 100).toFixed(1)}%"></i></div></header>`;
   }
 
@@ -221,7 +224,7 @@
   function renderLearn(p) {
     const c = content(p.sub, p.seed);
     const set = store.getSettings();
-    root.innerHTML = `<div class="run">${header(p, set.allowEarlyFinish ? '<button class="btn small primary" data-act="finish">Einprägen beenden</button>' : '')}
+    root.innerHTML = `<div class="run">${header(p, set.allowEarlyFinish ? '<button class="btn small primary" data-act="finish"><span class="lbl-wide">Einprägen beenden</span><span class="lbl-narrow">Fertig</span></button>' : '')}
       <div class="run-main"><div class="item" style="max-width:1000px"><p class="muted center">Prägen Sie sich alles gut ein – Notizen sind nicht erlaubt.</p>${c.learnHtml}</div></div></div>`;
     bind();
   }
@@ -267,7 +270,11 @@
     let main;
     if (p.sub === 'tv' && c.passages) {
       const pa = c.passages[it.passage];
-      main = `<div class="tv-layout"><article class="tv-passage paper"><h3>Text ${it.passage + 1}: ${pa.title}</h3>${pa.html}</article>${itemHtml}</div>`;
+      if (it.passage !== tvPassage) { tvPassage = it.passage; tvView = 'text'; }
+      const first = items.findIndex(x => x.passage === it.passage);
+      main = `<div class="tv-layout" data-view="${tvView}">
+        <div class="tv-tabs seg" role="tablist"><button role="tab" data-tv="text" class="${tvView === 'text' ? 'on' : ''}" aria-selected="${tvView === 'text'}">Text ${it.passage + 1}</button><button role="tab" data-tv="item" class="${tvView === 'item' ? 'on' : ''}" aria-selected="${tvView === 'item'}">Frage ${i - first + 1} von 6</button></div>
+        <article class="tv-passage"><h3>Text ${it.passage + 1}: ${pa.title}</h3>${pa.html}<p class="tv-to-q"><button class="btn primary small" data-tv="item">Zu den Fragen →</button></p></article>${itemHtml}</div>`;
     } else main = itemHtml;
     const sheet = items.map((_, k) => {
       let cls = '';
@@ -277,15 +284,15 @@
       if (k === i) cls += ' cur';
       return `<button class="${cls.trim()}" data-go="${k}" title="Aufgabe ${k + 1}">${k + 1}</button>`;
     }).join('');
-    root.innerHTML = `<div class="run">${header(p, `<button class="btn small" data-act="sheet">Bogen ${answeredCount}/${items.length}</button><button class="btn small primary" data-act="submit">Abgeben</button>`)}
+    root.innerHTML = `<div class="run">${header(p, `<button class="btn small sheet-btn" data-act="sheet" aria-label="Antwortbogen öffnen" title="Antwortbogen">${V.icon('sheet')}<span>${answeredCount}/${items.length}</span></button><button class="btn small primary hd-submit" data-act="submit">Abgeben</button>`)}
       <div class="run-body"><main class="run-main">${main}</main>
       <aside class="run-sheet" data-sheet><b>Antwortbogen</b><p class="muted" style="font-size:.82rem;margin:.2em 0 .8em">${answeredCount} von ${items.length} beantwortet</p><div class="sheet-grid">${sheet}</div>
       <div class="sheet-legend"><span><kbd>A</kbd>–<kbd>E</kbd> bzw. <kbd>1</kbd>–<kbd>5</kbd> antworten</span><span><kbd>←</kbd> <kbd>→</kbd> blättern</span><span><kbd>M</kbd> markieren</span></div></aside></div>
       <footer class="run-foot"><div class="run-foot-in">
-        <button class="btn" data-act="prev" ${i === 0 ? 'disabled' : ''}>← Zurück</button>
-        <button class="btn ghost" data-act="flag">${run.flags[p.sub][i] ? 'Markierung entfernen' : 'Markieren'}</button>
-        <span class="spacer"></span><span class="kbd-hint">${s.short} · ${i + 1}/${items.length}</span>
-        ${i < items.length - 1 ? '<button class="btn primary" data-act="next-item">Weiter →</button>' : '<button class="btn primary" data-act="submit">Abgeben</button>'}
+        <button class="btn" data-act="prev" ${i === 0 ? 'disabled' : ''} aria-label="Vorherige Aufgabe">←<span class="lbl-wide"> Zurück</span></button>
+        <button class="btn ghost ${run.flags[p.sub][i] ? 'flag-on' : ''}" data-act="flag" aria-pressed="${run.flags[p.sub][i]}" title="Aufgabe markieren">⚑<span class="lbl-wide"> ${run.flags[p.sub][i] ? 'Markierung entfernen' : 'Markieren'}</span></button>
+        <span class="spacer"></span><span class="kbd-hint">${s.short} · ${i + 1}/${items.length}</span><span class="foot-pos">${i + 1}/${items.length}</span>
+        ${i < items.length - 1 ? '<button class="btn ghost ft-submit" data-act="submit">Abgeben</button><button class="btn primary" data-act="next-item">Weiter →</button>' : '<button class="btn primary" data-act="submit">Abgeben</button>'}
       </div></footer></div>`;
     bind();
     tick();
@@ -359,8 +366,9 @@
   }
 
   function onClick(e) {
-    const b = e.target.closest('[data-act],[data-opt],[data-go]');
+    const b = e.target.closest('[data-act],[data-opt],[data-go],[data-tv]');
     if (!b || !run) return;
+    if (b.dataset.tv) { tvView = b.dataset.tv; renderTest(phase()); window.scrollTo(0, 0); return; }
     if (b.dataset.opt !== undefined) return answer(Number(b.dataset.opt));
     if (b.dataset.go !== undefined) { const sh = root.querySelector('[data-sheet]'); if (sh) sh.classList.remove('open'); return go(Number(b.dataset.go)); }
     const p = phase();

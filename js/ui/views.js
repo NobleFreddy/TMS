@@ -76,5 +76,46 @@
 
   V.timeLabel = sec => sec === null || sec === undefined ? 'ohne Zeitlimit' : (sec % 60 === 0 ? `${sec / 60} Min.` : U.fmtTime(sec) + ' Min.');
 
+  // ---------- Farbschema (System / Hell / Dunkel) ----------
+  const ICONS = {
+    system: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 20h8M12 16v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    light: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    dark: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+    menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    sheet: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>'
+  };
+  V.icon = name => ICONS[name] || '';
+  const THEME_LABEL = { system: 'Farbschema: wie System', light: 'Farbschema: hell', dark: 'Farbschema: dunkel' };
+  const THEME_NEXT = { system: 'light', light: 'dark', dark: 'system' };
+
+  V.currentTheme = () => (T.store.getSettings().theme || 'system');
+  V.isDark = () => {
+    const t = V.currentTheme();
+    return t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  };
+  V.applyTheme = function () {
+    const t = V.currentTheme();
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    else document.documentElement.removeAttribute('data-theme');
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || (V.isDark() ? '#11151d' : '#f4f6f9');
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => { m.setAttribute('content', bg); m.removeAttribute('media'); });
+    document.querySelectorAll('[data-theme-btn]').forEach(b => { b.innerHTML = ICONS[t]; b.title = THEME_LABEL[t] + ' (tippen zum Wechseln)'; b.setAttribute('aria-label', THEME_LABEL[t]); });
+  };
+  V.themeButton = () => `<button class="icon-btn" data-theme-btn type="button" title="${THEME_LABEL[V.currentTheme()]}" aria-label="${THEME_LABEL[V.currentTheme()]}">${ICONS[V.currentTheme()]}</button>`;
+  V.cycleTheme = function () {
+    const next = THEME_NEXT[V.currentTheme()];
+    T.store.saveSettings(Object.assign({}, T.store.getSettings(), { theme: next }));
+    V.applyTheme();
+    V.toast(THEME_LABEL[next]);
+    document.querySelectorAll('[data-theme-seg] button').forEach(x => x.classList.toggle('on', x.dataset.v === next));
+  };
+  document.addEventListener('click', e => { if (e.target.closest('[data-theme-btn]')) V.cycleTheme(); });
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => { if (V.currentTheme() === 'system') V.applyTheme(); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange); else if (mq.addListener) mq.addListener(onChange);
+  }
+
   T.views = V;
 })(window.TMS);

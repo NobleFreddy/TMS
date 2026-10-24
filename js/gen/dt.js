@@ -26,10 +26,10 @@
     for (let v = 0; v <= ymax + 1e-9; v += step) {
       const y = Tp + ph - v / ymax * ph;
       s += `<line x1="${L}" y1="${y}" x2="${W - R}" y2="${y}" stroke="#e3e3e3" stroke-width="1"/>`;
-      s += `<text x="${L - 6}" y="${y + 4}" text-anchor="end" font-size="11">${N(v, 2)}</text>`;
+      s += `<text x="${L - 6}" y="${y + 4}" text-anchor="end" font-size="13">${N(v, 2)}</text>`;
     }
     s += `<line x1="${L}" y1="${Tp}" x2="${L}" y2="${Tp + ph}" stroke="#111"/><line x1="${L}" y1="${Tp + ph}" x2="${W - R}" y2="${Tp + ph}" stroke="#111"/>`;
-    s += `<text transform="translate(14 ${Tp + ph / 2}) rotate(-90)" text-anchor="middle" font-size="11">${yLabel}</text>`;
+    s += `<text transform="translate(14 ${Tp + ph / 2}) rotate(-90)" text-anchor="middle" font-size="13">${yLabel}</text>`;
     return s;
   }
 
@@ -38,7 +38,7 @@
   }
 
   function barChart(d) {
-    const W = 560, H = 300, L = 58, B = 46, Tp = 14, R = 12;
+    const W = 480, H = 290, L = 56, B = 46, Tp = 14, R = 12;
     const { max, step } = niceMax(Math.max(...d.series.flatMap(s => s.values)) * 1.05);
     const pw = W - L - R, ph = H - Tp - B, nC = d.cats.length, nS = d.series.length;
     const gw = pw / nC, bw = gw * 0.72 / nS;
@@ -49,9 +49,9 @@
         const x = L + ci * gw + gw * 0.14 + si * bw;
         s += `<rect x="${x.toFixed(1)}" y="${(Tp + ph - h).toFixed(1)}" width="${(bw - 1).toFixed(1)}" height="${h.toFixed(1)}" fill="${GRAYS[si]}" stroke="#111" stroke-width="0.8"/>`;
       });
-      s += `<text x="${(L + ci * gw + gw / 2).toFixed(1)}" y="${Tp + ph + 16}" text-anchor="middle" font-size="11">${c}</text>`;
+      s += `<text x="${(L + ci * gw + gw / 2).toFixed(1)}" y="${Tp + ph + 16}" text-anchor="middle" font-size="13">${c}</text>`;
     });
-    if (d.xLabel) s += `<text x="${L + pw / 2}" y="${H - 6}" text-anchor="middle" font-size="11">${d.xLabel}</text>`;
+    if (d.xLabel) s += `<text x="${L + pw / 2}" y="${H - 6}" text-anchor="middle" font-size="13">${d.xLabel}</text>`;
     return `<div class="dt-chart paper"><svg viewBox="0 0 ${W} ${H}" class="dt-svg" font-family="Arial, sans-serif">${s}</svg>` +
       legend(d.series.map(x => x.name), i => `<i class="sw" style="background:${GRAYS[i]}"></i>`) + '</div>';
   }
@@ -64,7 +64,7 @@
   const DASH = ['', '6 4', '2 3'];
 
   function lineChart(d) {
-    const W = 560, H = 300, L = 58, B = 46, Tp = 14, R = 14;
+    const W = 480, H = 290, L = 56, B = 46, Tp = 14, R = 16;
     const { max, step } = niceMax(Math.max(...d.series.flatMap(s => s.values)) * 1.05);
     const pw = W - L - R, ph = H - Tp - B;
     const xmax = d.x[d.x.length - 1], xmin = d.x[0];
@@ -73,9 +73,9 @@
     d.x.forEach((xv, i) => {
       if (i % (d.xTickEvery || 1)) return;
       s += `<line x1="${X(xv)}" y1="${Tp}" x2="${X(xv)}" y2="${Tp + ph}" stroke="#f0f0f0"/>`;
-      s += `<text x="${X(xv)}" y="${Tp + ph + 16}" text-anchor="middle" font-size="11">${N(xv, 1)}</text>`;
+      s += `<text x="${X(xv)}" y="${Tp + ph + 16}" text-anchor="middle" font-size="13">${N(xv, 1)}</text>`;
     });
-    s += `<text x="${L + pw / 2}" y="${H - 6}" text-anchor="middle" font-size="11">${d.xLabel}</text>`;
+    s += `<text x="${L + pw / 2}" y="${H - 6}" text-anchor="middle" font-size="13">${d.xLabel}</text>`;
     d.series.forEach((se, si) => {
       const pts = se.values.map((v, i) => [X(d.x[i]).toFixed(1), Y(v).toFixed(1)]);
       s += `<polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="#111" stroke-width="1.6" ${DASH[si] ? `stroke-dasharray="${DASH[si]}"` : ''}/>`;
@@ -86,22 +86,22 @@
   }
 
   function stackedChart(d) {
-    const W = 560, rowH = 34, L = 92, R = 26, Tp = 10;
+    const W = 480, rowH = 34, L = 88, R = 24, Tp = 10;
     const H = Tp + d.cats.length * (rowH + 12) + 26;
     const pw = W - L - R;
     let s = '';
     for (let v = 0; v <= 100; v += 20) {
       const x = L + v / 100 * pw;
-      s += `<line x1="${x}" y1="${Tp - 2}" x2="${x}" y2="${H - 22}" stroke="#e3e3e3"/><text x="${x}" y="${H - 8}" text-anchor="middle" font-size="11">${v} %</text>`;
+      s += `<line x1="${x}" y1="${Tp - 2}" x2="${x}" y2="${H - 22}" stroke="#e3e3e3"/><text x="${x}" y="${H - 8}" text-anchor="middle" font-size="13">${v} %</text>`;
     }
     d.cats.forEach((c, ci) => {
       const y = Tp + ci * (rowH + 12);
       let acc = 0;
-      s += `<text x="${L - 8}" y="${y + rowH / 2 + 4}" text-anchor="end" font-size="11">${c}</text>`;
+      s += `<text x="${L - 8}" y="${y + rowH / 2 + 4}" text-anchor="end" font-size="13">${c}</text>`;
       d.parts.forEach((p, pi) => {
         const v = p.values[ci], x = L + acc / 100 * pw, w = v / 100 * pw;
         s += `<rect x="${x.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="${rowH}" fill="${GRAYS[pi]}" stroke="#111" stroke-width="0.8"/>`;
-        if (w > 24) s += `<text x="${(x + w / 2).toFixed(1)}" y="${y + rowH / 2 + 4}" text-anchor="middle" font-size="11" fill="${pi === 0 || pi === 3 ? '#fff' : '#111'}">${v}</text>`;
+        if (w > 24) s += `<text x="${(x + w / 2).toFixed(1)}" y="${y + rowH / 2 + 4}" text-anchor="middle" font-size="13" fill="${pi === 0 || pi === 3 ? '#fff' : '#111'}">${v}</text>`;
         acc += v;
       });
     });

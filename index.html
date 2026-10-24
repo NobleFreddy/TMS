@@ -2,8 +2,22 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f4f6f9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#11151d" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="TMS-Trainer">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <title>TMS-Trainer</title>
+  <script>
+    /* Farbschema vor dem ersten Zeichnen setzen, damit nichts aufblitzt */
+    try { var t = (JSON.parse(localStorage.getItem('tms.settings.v1') || '{}').theme); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) { }
+  </script>
   <meta name="description" content="Statische Trainingsseite für den Test für Medizinische Studiengänge (TMS): je 15 Simulationen für alle acht Untertests, Gesamtsimulationen, einstellbare Zeitlimits und Auswertung mit Prozentrang.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232156d9'/%3E%3Cpath d='M18 20h28v6H35v22h-6V26H18z' fill='white'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">

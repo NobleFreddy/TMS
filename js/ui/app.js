@@ -5,20 +5,25 @@
   const app = document.getElementById('app');
 
   // ---------- Hilfen ----------
-  function applyTheme() {
-    const t = store.getSettings().theme;
-    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
-    else document.documentElement.removeAttribute('data-theme');
-  }
+  const applyTheme = () => V.applyTheme();
 
   function shell(active, body) {
     const nav = [['#/', 'Start', 'home'], ['#/untertests', 'Untertests', 'sub'], ['#/gesamt', 'Gesamtsimulationen', 'full'], ['#/verlauf', 'Verlauf', 'hist'], ['#/einstellungen', 'Einstellungen', 'set'], ['#/info', 'Infos zum TMS', 'info']];
     app.innerHTML = `<header class="topbar"><div class="topbar-in">
         <a class="brand" href="#/"><span class="brand-logo">T</span><span>TMS-Trainer</span></a>
-        <nav class="nav" aria-label="Hauptnavigation">${nav.map(n => `<a href="${n[0]}" class="${active === n[2] ? 'active' : ''}">${n[1]}</a>`).join('')}</nav>
+        <nav class="nav" id="mainnav" aria-label="Hauptnavigation">${nav.map(n => `<a href="${n[0]}" class="${active === n[2] ? 'active' : ''}"${active === n[2] ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}</nav>
+        <div class="topbar-tools">${V.themeButton()}<button class="icon-btn nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mainnav" aria-label="Menü öffnen">${V.icon('menu')}</button></div>
       </div></header>
       <main class="page">${resumeBanner()}${body}</main>
       <footer class="footer"><div class="footer-in">TMS-Trainer · statische Übungsseite ohne Datenbank – alle Ergebnisse bleiben in Ihrem Browser (localStorage). Kein offizielles Angebot der TMS-Koordinationsstelle oder der ITB Consulting GmbH.</div></footer>`;
+    const tg = app.querySelector('[data-nav-toggle]'), nv = app.querySelector('#mainnav');
+    tg.addEventListener('click', () => {
+      const open = !nv.classList.contains('open');
+      nv.classList.toggle('open', open);
+      tg.setAttribute('aria-expanded', String(open));
+      tg.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+      tg.innerHTML = V.icon(open ? 'close' : 'menu');
+    });
     window.scrollTo(0, 0);
   }
 
@@ -190,7 +195,7 @@
     const ans = a.answers[sub];
     const extra = [];
     if (c.learnHtml) extra.push(`<details class="review-item"><summary><b>Lernmaterial anzeigen</b></summary><div class="review-body">${c.learnHtml}</div></details>`);
-    if (c.passages) c.passages.forEach((p, i) => extra.push(`<details class="review-item"><summary><b>Text ${i + 1}: ${p.title}</b></summary><div class="review-body paper" style="padding:16px 20px">${p.html}</div></details>`));
+    if (c.passages) c.passages.forEach((p, i) => extra.push(`<details class="review-item"><summary><b>Text ${i + 1}: ${p.title}</b></summary><div class="review-body tv-text">${p.html}</div></details>`));
     const rows = c.items.map((it, i) => {
       const v = ans[i], ok = v === it.correct;
       const st = v === null ? 'na' : ok ? 'ok' : 'no';
